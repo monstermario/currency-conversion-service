@@ -54,4 +54,28 @@ public class CurrencyController {
 
         return Map.of("apiKey", apiKey);
     }
+
+    @GetMapping("/convert")
+    public Map<String, Object> convertCurrency(
+            @RequestHeader("X-API-KEY") String apiKey,
+            @RequestParam String from,
+            @RequestParam String to,
+            @RequestParam Double amount) {
+
+        if (!apiKeyService.isValidApiKey(apiKey)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid API Key");
+        }
+
+        if (amount == null || amount <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Amount must be a positive number.");
+        }
+
+        if (!currencyService.isValidCurrency(from) || !currencyService.isValidCurrency(to)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid currency code: " + from + " or " + to);
+        }
+
+        Double result = currencyService.convertCurrency(apiKey, from, to, amount);
+        return Map.of("convertedAmount", result);
+    }
+
 }
