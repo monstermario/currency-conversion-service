@@ -78,4 +78,11 @@ public class CurrencyController {
         return Map.of("convertedAmount", result);
     }
 
+    @GetMapping("/logs")
+    public List<RequestLog> getConversionLogs(@RequestHeader("X-API-KEY") String apiKey) {
+        if (!apiKeyService.isValidApiKey(apiKey)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid API Key");
+        }
+        return requestLogRepository.findByApiKey(apiKey);
+    }
 }
